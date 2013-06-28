@@ -29,6 +29,7 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 ipch/
 *.sdf
+*.opensdf
 *.pak
 ###########################
 Bin32/
@@ -38,3 +39,4 @@ Engine/
 Game/
 Localization/
 Tools/
+USER/

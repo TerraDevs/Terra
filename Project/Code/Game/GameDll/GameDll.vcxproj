@@ -191,7 +191,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\SDKs\STLPORT\stlport;.\;%(AdditionalIncludeDirectories);..\..\CryEngine\CryAction;..\..\SDKs;..\..\SDKs\speex-1.0.5\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\;%(AdditionalIncludeDirectories);..\..\CryEngine\CryAction;..\..\SDKs;..\..\SDKs\speex-1.0.5\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;USE_CRY_ASSERT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
@@ -200,7 +200,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>netapi32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\SDKs\STLPORT\stlport;..\..\SDKs\speex-1.0.5\lib\$(Platform);../../CryEngine/CryCommon/SolidShield;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\SDKs\speex-1.0.5\lib\$(Platform);../../CryEngine/CryCommon/SolidShield;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>LIBCMTD;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -224,7 +224,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\SDKs\STLPORT\stlport;%(AdditionalIncludeDirectories);.\;..\..\CryEngine\CryAction;..\..\SDKs;..\..\SDKs\speex-1.0.5\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);.\;..\..\CryEngine\CryAction;..\..\SDKs;..\..\SDKs\speex-1.0.5\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -233,7 +233,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>netapi32.lib;Ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\..\SDKs\STLPORT\stlport;..\..\SDKs\speex-1.0.5\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\..\SDKs\speex-1.0.5\lib\$(Platform);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>libcmtd.lib;%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -547,6 +547,9 @@
     <ClCompile Include="PlayerMovementController.cpp" />
     <ClCompile Include="PlayerRotation.cpp" />
     <ClCompile Include="PlayerView.cpp" />
+    <ClCompile Include="TerraFiles\Actor Files\TerraMovementController.cpp" />
+    <ClCompile Include="TerraFiles\Actor Files\TerraPlayer.cpp" />
+    <ClCompile Include="TerraFiles\Actor Files\TerraPlayerInput.cpp" />
     <ClCompile Include="Utility\CryHash.cpp" />
     <ClCompile Include="WeaponAttachmentManager.cpp" />
     <ClCompile Include="CustomReactionFunctions.cpp" />
@@ -810,6 +813,9 @@
     <ClInclude Include="PlayerMovementController.h" />
     <ClInclude Include="PlayerRotation.h" />
     <ClInclude Include="PlayerView.h" />
+    <ClInclude Include="TerraFiles\Actor Files\TerraMovementController.h" />
+    <ClInclude Include="TerraFiles\Actor Files\TerraPlayer.h" />
+    <ClInclude Include="TerraFiles\Actor Files\TerraPlayerInput.h" />
     <ClInclude Include="Utility\CryHash.h" />
     <ClInclude Include="WeaponAttachmentManager.h" />
     <ClInclude Include="CustomReactionFunctions.h" />

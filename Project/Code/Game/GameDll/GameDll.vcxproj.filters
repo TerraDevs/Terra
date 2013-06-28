@@ -124,6 +124,12 @@
     <Filter Include="HUD\EventSystems">
       <UniqueIdentifier>{ff84d126-8b7f-4c7a-8c1b-11717b32b6ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="TerraFiles">
+      <UniqueIdentifier>{c4e7f327-44d6-4898-8051-773a775a5242}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="TerraFiles\Actor Files">
+      <UniqueIdentifier>{24b33555-78f4-4d6f-a333-89913032e56b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GameDll.cpp">
@@ -834,6 +840,15 @@
     <ClCompile Include="Environment\Snow.cpp">
       <Filter>Game Files\Environment</Filter>
     </ClCompile>
+    <ClCompile Include="TerraFiles\Actor Files\TerraPlayerInput.cpp">
+      <Filter>TerraFiles\Actor Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerraFiles\Actor Files\TerraPlayer.cpp">
+      <Filter>TerraFiles\Actor Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TerraFiles\Actor Files\TerraMovementController.cpp">
+      <Filter>TerraFiles\Actor Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameStartup.h">
@@ -1525,6 +1540,15 @@
     </ClInclude>
     <ClInclude Include="Environment\Snow.h">
       <Filter>Game Files\Environment</Filter>
+    </ClInclude>
+    <ClInclude Include="TerraFiles\Actor Files\TerraPlayer.h">
+      <Filter>TerraFiles\Actor Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerraFiles\Actor Files\TerraPlayerInput.h">
+      <Filter>TerraFiles\Actor Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TerraFiles\Actor Files\TerraMovementController.h">
+      <Filter>TerraFiles\Actor Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

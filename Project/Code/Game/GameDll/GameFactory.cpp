@@ -18,7 +18,7 @@
 
 #include "StdAfx.h"
 #include "Game.h"
-#include "Player.h"
+#include "Actor Files/TerraPlayer.h"
 #include "Flyer.h"
 #include "Shark.h"
 //
@@ -129,7 +129,7 @@ void InitGameFactory(IGameFramework *pFramework)
 	REGISTER_FACTORY(pFramework, "NullAI", CPlayer, true);
 	HIDE_FROM_EDITOR("NullAI");
 
-	REGISTER_FACTORY(pFramework, "Player", CPlayer, false);
+	REGISTER_FACTORY(pFramework, "Player", CTerraPlayer, false);
 	REGISTER_FACTORY(pFramework, "Grunt", CPlayer, true);
 
 	REGISTER_FACTORY(pFramework, "Civilian", CPlayer, true);

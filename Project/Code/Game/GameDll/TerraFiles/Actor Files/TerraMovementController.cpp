@@ -47,6 +47,8 @@ bool CTerraMovementController::RequestMovement( CMovementRequest& request )
 
 bool CTerraMovementController::GetStanceState( const SStanceStateQuery& query, SStanceState& state )
 {
+	IEntity* pEntity;
+
 	state.aimDirection = Vec3(1,0,0);
 	state.animationBodyDirection = Vec3(1,0,0);
 	state.entityDirection = Vec3(1,0,0);
@@ -54,7 +56,10 @@ bool CTerraMovementController::GetStanceState( const SStanceStateQuery& query, S
 	state.eyePosition = Vec3(0,0,0);
 	state.fireDirection = Vec3(1,0,0);
 	state.lean = 0;
-	state.pos = Vec3(0,0,0);
+
+	Vec3 pos	= query.position.IsZero() ? pEntity->GetWorldPos() : query.position;
+	state.pos	= pos;
+
 	state.upDirection = Vec3(0,0,1);
 	state.weaponPosition = Vec3(0,0,0);
 

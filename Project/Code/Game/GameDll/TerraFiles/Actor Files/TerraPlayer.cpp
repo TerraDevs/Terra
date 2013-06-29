@@ -15,8 +15,6 @@ CTerraPlayer::~CTerraPlayer()
 	mPlayerInput.reset();
 }
 
-//All these init functions seems to bee needed, the code is copied fron the Player.cpp class, and i don't know what does what,
-//but when all this is here you get 'UpdateView' (camera updatr function), Update (seems to be the normal update function) and the 'OnAction' (the input feeding function) functions working.
 bool CTerraPlayer::Init(IGameObject * pGameObject)
 {
 	if (!CActor::Init(pGameObject))
@@ -58,30 +56,33 @@ void CTerraPlayer::InitClient(int channelId )
 
 void CTerraPlayer::InitLocalPlayer()
 {
-	GetGameObject()->SetUpdateSlotEnableCondition( this, 0, eUEC_WithoutAI );
+	GetGameObject()->SetUpdateSlotEnableCondition(this, 0, eUEC_WithoutAI);
+
+	auto debug = gEnv->pGameFramework->GetIPersistantDebug();
+	debug->Reset();
+	debug->Begin("TestAddPersistentText2D",false);
+	debug->Add2DText("Test", 6, ColorF(1.0f, 1.0f, 1.0f), 5);
 }
 
 void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 {
 	CActor::Update(ctx,updateSlot);
+
+	float frametime = gEnv->pTimer->GetFrameTime();
 	
 	if (mPlayerInput.get())
 		mPlayerInput->Update();
 	else
-	{
-		mPlayerInput.reset( new CTerraPlayerInput(this) );
-	}
+		mPlayerInput.reset(new CTerraPlayerInput(this));
 
-	//just to check that this works
-	ColorF white(1, 1, 1);
+	if(m_pMovementController)
+		m_pMovementController->Update(frametime, SActorFrameMovementParams());
 
-	auto debug = gEnv->pGameFramework->GetIPersistantDebug();
-	debug->Reset();
-	debug->Begin("TestAddPersistentText2D",false);
-	debug->Add2DText("Test", 6, white, 5);
+	if(m_pMovementController)
+		m_pMovementController->PostUpdate(frametime);
 }
 
-IActorMovementController * CTerraPlayer::CreateMovementController()
+IActorMovementController* CTerraPlayer::CreateMovementController()
 {
 	return new CTerraMovementController(this);
 }
@@ -105,6 +106,6 @@ void CTerraPlayer::GetMemoryUsage(ICrySizer * s) const
 void CTerraPlayer::UpdateView(SViewParams &viewParams)
 {
 	viewParams.fov = 0.5;
-	viewParams.position = Vec3(1000, 1000, 25);
+	viewParams.position = GetEntity()->GetWorldPos() + Vec3(0, -10, 10);
 	viewParams.rotation = Quat::CreateRotationVDir(Vec3(1,0,0), 0.0f);
 }

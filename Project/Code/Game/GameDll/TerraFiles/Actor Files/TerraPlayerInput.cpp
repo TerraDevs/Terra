@@ -5,11 +5,10 @@
 #include "IPlayerInput.h"
 #include "GameActions.h"
 
-CTerraPlayerInput::CTerraPlayerInput(CTerraPlayer *pPlayer):
-	mMyPlayer(pPlayer)
+CTerraPlayerInput::CTerraPlayerInput(CTerraPlayer *pPlayer):m_pPlayer(pPlayer)
 {
 	//this makes the input class hook up to the input feeder
-	mMyPlayer->GetGameObject()->CaptureActions(this);
+	m_pPlayer->GetGameObject()->CaptureActions(this);
 }
 
 CTerraPlayerInput::~CTerraPlayerInput()
@@ -37,7 +36,6 @@ void CTerraPlayerInput::GetState( SSerializedPlayerInput& input )
 {
 }
 
-
 void CTerraPlayerInput::Reset()
 {
 }
@@ -58,9 +56,5 @@ uint32 CTerraPlayerInput::GetActions() const
 
 void CTerraPlayerInput::OnAction(const ActionId& action, int activationMode, float value)
 {
-	//just printa 'Yeey* in the game.log file when you press 'w', it's mapped inside of the defaultProfile.xml file (game/libs/config)
-	if(action == "moveforward")
-	{
-		CryLogAlways("YEEY");
-	}
+	CryLogAlways("%s | %d", action, activationMode);
 };

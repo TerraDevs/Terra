@@ -37,7 +37,7 @@ public:
 	virtual void OnAction(const ActionId& action, int activationMode, float value);
 
 protected:
-	CTerraPlayer	*mMyPlayer;
+	CTerraPlayer* m_pPlayer;
 };
 
 #endif

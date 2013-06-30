@@ -572,6 +572,7 @@ void SCVars::InitCVars(IConsole *pConsole)
 	REGISTER_CVAR(pl_testGroundAlignOverride, 0, VF_CHEAT, "");
 	REGISTER_CVAR(pl_ladder_animOffset, -0.54f, VF_CHEAT, "Additional animation/position offset");
 
+	REGISTER_CVAR(pl_debug_input, 0, VF_CHEAT, "Show player input debugging graphics.");
 	REGISTER_CVAR(pl_debug_movement, 0, VF_CHEAT,"");
 	REGISTER_CVAR(pl_debug_jumping, 0, VF_CHEAT,"");
 	pl_debug_filter = REGISTER_STRING("pl_debug_filter","",VF_CHEAT,"");
@@ -1019,6 +1020,7 @@ void SCVars::ReleaseCVars()
 	pConsole->UnregisterVariable("player_NoIK", true);
 	pConsole->UnregisterVariable("g_enableIdleCheck", true);
 	pConsole->UnregisterVariable("pl_debug_ladders", true);
+	pConsole->UnregisterVariable("pl_debug_input", true);
 	pConsole->UnregisterVariable("pl_debug_movement", true);
 	pConsole->UnregisterVariable("pl_debug_filter", true);
 

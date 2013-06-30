@@ -1,18 +1,27 @@
 #include "StdAfx.h"
 #include "Game.h"
 #include "GameCVars.h"
+#include "IDebugHistory.h"
 #include "TerraPlayer.h"
 #include "TerraPlayerInput.h"
 #include "TerraMovementController.h"
+#include "HUD/UIManager.h"
 #include <IViewSystem.h>
 
-CTerraPlayer::CTerraPlayer()
+CTerraPlayer::CTerraPlayer():
+	m_pDebugHistoryManager(NULL)
 {
 }
 
 CTerraPlayer::~CTerraPlayer()
 {
 	m_playerInput.reset();
+
+	if(m_pDebugHistoryManager != NULL)
+	{
+		m_pDebugHistoryManager->Release();
+		delete m_pDebugHistoryManager;
+	}
 }
 
 bool CTerraPlayer::Init(IGameObject * pGameObject)
@@ -59,11 +68,6 @@ void CTerraPlayer::InitLocalPlayer()
 	CActor::InitLocalPlayer();
 
 	GetGameObject()->SetUpdateSlotEnableCondition(this, 0, eUEC_WithoutAI);
-
-	auto debug = gEnv->pGameFramework->GetIPersistantDebug();
-	debug->Reset();
-	debug->Begin("TestAddPersistentText2D",false);
-	debug->Add2DText("Test", 6, ColorF(1.0f, 1.0f, 1.0f), 5);
 }
 
 void CTerraPlayer::PrePhysicsUpdate()
@@ -73,20 +77,34 @@ void CTerraPlayer::PrePhysicsUpdate()
 	if(m_playerInput.get())
 		m_playerInput->PreUpdate();
 
+	//Move player//////////////////////////
 	SActorFrameMovementParams moveParams;
 
 	if(m_pMovementController)
-		m_pMovementController->Update(frametime, moveParams);
+		m_pMovementController->Update(frametime, moveParams); //Modifies moveParams to contain rotation, velocity, etc.
 
+	m_moveRequest.rotation	= Quat::CreateRotationXYZ(moveParams.deltaAngles);
 	m_moveRequest.velocity	= moveParams.desiredVelocity;
 	m_moveRequest.type		= ECharacterMoveType::eCMT_Normal;
 
-	m_pAnimatedCharacter->AddMovement(m_moveRequest);
+	m_pAnimatedCharacter->AddMovement(m_moveRequest); //Applies movement
 
 	m_moveRequest.velocity.zero();
 
 	if(m_pMovementController)
 		m_pMovementController->PostUpdate(frametime);
+	///////////////////////////////////////
+
+	UpdateDebug();
+}
+
+void CTerraPlayer::UpdateDebug()
+{
+	if(!g_pGameCVars->pl_debug_movement)
+		return;
+
+	if(m_pDebugHistoryManager == NULL)
+		m_pDebugHistoryManager = g_pGame->GetIGameFramework()->CreateDebugHistoryManager();
 }
 
 void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
@@ -132,5 +150,10 @@ void CTerraPlayer::UpdateView(SViewParams &viewParams)
 {
 	viewParams.fov			= 0.5;
 	viewParams.position		= GetEntity()->GetWorldPos() + CAM_OFFSET;
-	viewParams.rotation		= Quat::CreateRotationXYZ(Ang3(DEG2RAD(270), 0, 0));
+	viewParams.rotation		= Quat::CreateRotationXYZ(CAM_ROTATION);
+
+	//Update HUD
+	static CUIManager* pManager = CUIManager::GetInstance();
+	if (pManager)
+		pManager->ProcessViewParams(viewParams);
 }

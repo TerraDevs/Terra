@@ -16,6 +16,9 @@ bool CTerraMovementController::Update(float frameTime, SActorFrameMovementParams
 	if(!m_pPlayer)
 		return false;
 
+	if(m_moveRequest.HasDeltaRotation())
+		params.deltaAngles += m_moveRequest.GetDeltaRotation();
+
 	if(m_moveRequest.HasDeltaMovement())
 		params.desiredVelocity += m_moveRequest.GetDeltaMovement();
 
@@ -44,6 +47,9 @@ void CTerraMovementController::Serialize(TSerialize &ser)
 
 bool CTerraMovementController::RequestMovement(CMovementRequest& request)
 {
+	if(request.HasDeltaRotation())
+		m_moveRequest.AddDeltaRotation(request.GetDeltaRotation());
+
 	if(request.HasDeltaMovement())
 		m_moveRequest.AddDeltaMovement(request.GetDeltaMovement());
 

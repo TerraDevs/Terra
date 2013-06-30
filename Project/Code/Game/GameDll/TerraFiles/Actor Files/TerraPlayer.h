@@ -7,9 +7,11 @@
 
 #include "Actor.h"
 
-#define CAM_OFFSET Vec3(0, 0, 10)
+#define CAM_OFFSET		Vec3(0, 0, 10)
+#define CAM_ROTATION	Ang3(DEG2RAD(270), 0, 0)
 
 struct IPlayerInput;
+struct IDebugHistoryManager;
 
 class CTerraPlayer : public CActor
 {
@@ -22,6 +24,7 @@ public:
 	virtual void InitClient(int channelId );
 	virtual void InitLocalPlayer();
 	virtual void PrePhysicsUpdate();
+	virtual void UpdateDebug();
 	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
 	virtual void ProcessEvent(SEntityEvent& event);
 
@@ -38,6 +41,7 @@ public:
 protected:
 	std::auto_ptr<IPlayerInput> m_playerInput;
 	SCharacterMoveRequest		m_moveRequest;
+	IDebugHistoryManager*		m_pDebugHistoryManager;
 };
 
 #endif

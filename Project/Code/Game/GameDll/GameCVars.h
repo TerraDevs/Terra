@@ -384,7 +384,7 @@ struct SCVars
 	float	pl_ladder_animOffset;
 	int		pl_testGroundAlignOverride;
 
-
+	int		pl_debug_input;
 	int		pl_debug_movement;
 	int		pl_debug_jumping;
 	ICVar*pl_debug_filter;

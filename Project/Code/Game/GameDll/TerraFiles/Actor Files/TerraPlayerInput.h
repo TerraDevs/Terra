@@ -6,6 +6,7 @@
 #include "IActionMapManager.h"
 #include "IPlayerInput.h"
 #include "TerraPlayer.h"
+#include "DebugHelper.h"
 
 class CPlayer;
 struct SPlayerStats;
@@ -39,9 +40,12 @@ public:
 	virtual void OnActionMoveBack(int activationMode, float value);
 	virtual void OnActionMoveLeft(int activationMode, float value);
 	virtual void OnActionMoveRight(int activationMode, float value);
+	virtual void OnActionMouseMoveX(int activationMode, float value);
+	virtual void OnActionMouseMoveY(int activationMode, float value);
 
 protected:
 	Vec3			m_DeltaMovement;
+	Ang3			m_DeltaRotation;
 	CTerraPlayer*	m_pPlayer;
 };
 

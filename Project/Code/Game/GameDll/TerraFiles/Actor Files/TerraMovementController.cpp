@@ -1,21 +1,23 @@
 #include "StdAfx.h"
 #include "TerraMovementController.h"
 
-//here i have just looked at the original functions and copied the things that looks very basic, it's just a fraction of the original class.
-CTerraMovementController::CTerraMovementController( CTerraPlayer * pPlayer )
+CTerraMovementController::CTerraMovementController(CTerraPlayer * pPlayer)
 {
-
+	m_pPlayer = pPlayer;
 }
 
 void CTerraMovementController::Reset()
 {
-
+	m_moveRequest.RemoveDeltaMovement();
 }
 
-bool CTerraMovementController::Update( float frameTime, SActorFrameMovementParams& params )
+bool CTerraMovementController::Update(float frameTime, SActorFrameMovementParams& params)
 {
-	params.lookTarget = Vec3(-1,-1,-1);
-	params.aimTarget = Vec3(-1,-1,-1);
+	if(!m_pPlayer)
+		return false;
+
+	if(m_moveRequest.HasDeltaMovement())
+		params.desiredVelocity += m_moveRequest.GetDeltaMovement();
 
 	return true;
 }
@@ -23,31 +25,34 @@ bool CTerraMovementController::Update( float frameTime, SActorFrameMovementParam
 bool CTerraMovementController::GetStats(SStats& stats)
 {
 	stats.idle = true;
+
 	return true;
 }
 
-void CTerraMovementController::PostUpdate( float frameTime )
+void CTerraMovementController::PostUpdate(float frameTime)
 {
+	m_moveRequest.RemoveDeltaMovement();
 }
 
 void CTerraMovementController::Release()
 {
-
 }
 
 void CTerraMovementController::Serialize(TSerialize &ser)
 {
-
 }
 
-bool CTerraMovementController::RequestMovement( CMovementRequest& request )
+bool CTerraMovementController::RequestMovement(CMovementRequest& request)
 {
+	if(request.HasDeltaMovement())
+		m_moveRequest.AddDeltaMovement(request.GetDeltaMovement());
+
 	return true;
 }
 
-bool CTerraMovementController::GetStanceState( const SStanceStateQuery& query, SStanceState& state )
+bool CTerraMovementController::GetStanceState(const SStanceStateQuery& query, SStanceState& state)
 {
-	IEntity* pEntity;
+	IEntity* pEntity = m_pPlayer->GetEntity();
 
 	state.aimDirection = Vec3(1,0,0);
 	state.animationBodyDirection = Vec3(1,0,0);

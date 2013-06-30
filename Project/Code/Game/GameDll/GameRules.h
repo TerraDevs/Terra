@@ -30,6 +30,7 @@
 
 class CActor;
 class CPlayer;
+class CTerraPlayer;
 
 struct IGameObject;
 struct IActorSystem;
@@ -703,6 +704,7 @@ public:
 
 
 	void PlayerPosForRespawn(CPlayer* pPlayer, bool save);
+	void PlayerPosForRespawn(CTerraPlayer* pPlayer, bool save);
 	void SPNotifyPlayerKill(EntityId targetId, EntityId weaponId, bool bHeadShot);
 
 	string GetPlayerName(int channelId, bool bVerifyName = false);

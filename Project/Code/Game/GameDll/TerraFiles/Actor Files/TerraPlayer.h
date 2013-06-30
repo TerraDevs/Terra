@@ -7,6 +7,8 @@
 
 #include "Actor.h"
 
+#define CAM_OFFSET Vec3(0, 0, 10)
+
 struct IPlayerInput;
 
 class CTerraPlayer : public CActor
@@ -19,7 +21,9 @@ public:
 	virtual void PostInit( IGameObject * pGameObject );
 	virtual void InitClient(int channelId );
 	virtual void InitLocalPlayer();
+	virtual void PrePhysicsUpdate();
 	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
+	virtual void ProcessEvent(SEntityEvent& event);
 
 	IActorMovementController * CreateMovementController();
 	
@@ -29,10 +33,11 @@ public:
 
 	void UpdateView(SViewParams &viewParams);
 
-	IPlayerInput* GetPlayerInput() const {return mPlayerInput.get();}
+	IPlayerInput* GetPlayerInput() const {return m_playerInput.get();}
 
 protected:
-	std::auto_ptr<IPlayerInput> mPlayerInput;
+	std::auto_ptr<IPlayerInput> m_playerInput;
+	SCharacterMoveRequest		m_moveRequest;
 };
 
 #endif

@@ -12,7 +12,7 @@ CTerraPlayer::CTerraPlayer()
 
 CTerraPlayer::~CTerraPlayer()
 {
-	mPlayerInput.reset();
+	m_playerInput.reset();
 }
 
 bool CTerraPlayer::Init(IGameObject * pGameObject)
@@ -56,6 +56,8 @@ void CTerraPlayer::InitClient(int channelId )
 
 void CTerraPlayer::InitLocalPlayer()
 {
+	CActor::InitLocalPlayer();
+
 	GetGameObject()->SetUpdateSlotEnableCondition(this, 0, eUEC_WithoutAI);
 
 	auto debug = gEnv->pGameFramework->GetIPersistantDebug();
@@ -64,22 +66,45 @@ void CTerraPlayer::InitLocalPlayer()
 	debug->Add2DText("Test", 6, ColorF(1.0f, 1.0f, 1.0f), 5);
 }
 
-void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
+void CTerraPlayer::PrePhysicsUpdate()
 {
-	CActor::Update(ctx,updateSlot);
-
 	float frametime = gEnv->pTimer->GetFrameTime();
-	
-	if (mPlayerInput.get())
-		mPlayerInput->Update();
-	else
-		mPlayerInput.reset(new CTerraPlayerInput(this));
+
+	if(m_playerInput.get())
+		m_playerInput->PreUpdate();
+
+	SActorFrameMovementParams moveParams;
 
 	if(m_pMovementController)
-		m_pMovementController->Update(frametime, SActorFrameMovementParams());
+		m_pMovementController->Update(frametime, moveParams);
+
+	m_moveRequest.velocity	= moveParams.desiredVelocity;
+	m_moveRequest.type		= ECharacterMoveType::eCMT_Normal;
+
+	m_pAnimatedCharacter->AddMovement(m_moveRequest);
+
+	m_moveRequest.velocity.zero();
 
 	if(m_pMovementController)
 		m_pMovementController->PostUpdate(frametime);
+}
+
+void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
+{
+	CActor::Update(ctx,updateSlot);
+	
+	if (m_playerInput.get())
+		m_playerInput->Update();
+	else
+		m_playerInput.reset(new CTerraPlayerInput(this));
+}
+
+void CTerraPlayer::ProcessEvent(SEntityEvent& event)
+{
+	switch(event.event)
+	{
+	case ENTITY_EVENT_PREPHYSICSUPDATE: PrePhysicsUpdate(); break;
+	}
 }
 
 IActorMovementController* CTerraPlayer::CreateMovementController()
@@ -99,13 +124,13 @@ void CTerraPlayer::GetMemoryUsage(ICrySizer * s) const
 {
 	s->Add(*this);
 	CActor::GetActorMemoryStatistics(s);
-	if (mPlayerInput.get())
-		mPlayerInput->GetMemoryUsage(s);
+	if (m_playerInput.get())
+		m_playerInput->GetMemoryUsage(s);
 }
 
 void CTerraPlayer::UpdateView(SViewParams &viewParams)
 {
-	viewParams.fov = 0.5;
-	viewParams.position = GetEntity()->GetWorldPos() + Vec3(0, -10, 10);
-	viewParams.rotation = Quat::CreateRotationVDir(Vec3(1,0,0), 0.0f);
+	viewParams.fov			= 0.5;
+	viewParams.position		= GetEntity()->GetWorldPos() + CAM_OFFSET;
+	viewParams.rotation		= Quat::CreateRotationXYZ(Ang3(DEG2RAD(270), 0, 0));
 }

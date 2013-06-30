@@ -35,9 +35,14 @@ public:
 	virtual uint32 GetActions() const;
 	
 	virtual void OnAction(const ActionId& action, int activationMode, float value);
+	virtual void OnActionMoveForward(int activationMode, float value);
+	virtual void OnActionMoveBack(int activationMode, float value);
+	virtual void OnActionMoveLeft(int activationMode, float value);
+	virtual void OnActionMoveRight(int activationMode, float value);
 
 protected:
-	CTerraPlayer* m_pPlayer;
+	Vec3			m_DeltaMovement;
+	CTerraPlayer*	m_pPlayer;
 };
 
 #endif

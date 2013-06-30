@@ -77,7 +77,7 @@
 
 
 
-#include "Player.h"
+#include "Actor Files/TerraPlayer.h"
 
 #include "GameMechanismManager/GameMechanismManager.h"
 #include "Testing/FeatureTester.h"
@@ -775,8 +775,8 @@ void CGame::OnSaveGame(ISaveGame* pSaveGame)
 {
 	ScopedSwitchToGlobalHeap useGlobalHeap;
 
-	IActor*		pActor = GetIGameFramework()->GetClientActor();
-	CPlayer*	pPlayer = static_cast<CPlayer*>(pActor);
+	IActor*			pActor	= GetIGameFramework()->GetClientActor();
+	CTerraPlayer*	pPlayer = static_cast<CTerraPlayer*>(pActor);
 	GetGameRules()->PlayerPosForRespawn(pPlayer, true);
 
 	//save difficulty

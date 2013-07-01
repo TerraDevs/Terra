@@ -5,6 +5,8 @@
 #include "IPlayerInput.h"
 #include "GameActions.h"
 #include "GameCVars.h"
+#include "Utility/StringUtils.h"
+#include "IHardwareMouse.h"
 
 CTerraPlayerInput::CTerraPlayerInput(CTerraPlayer *pPlayer):
 	m_pPlayer(pPlayer),
@@ -12,8 +14,6 @@ CTerraPlayerInput::CTerraPlayerInput(CTerraPlayer *pPlayer):
 	m_DeltaRotation(0.0f, 0.0f, 0.0f)
 {
 	m_pPlayer->GetGameObject()->CaptureActions(this);
-
-	DEBUG_DRAW_INIT(0.0f);
 }
 
 CTerraPlayerInput::~CTerraPlayerInput()
@@ -37,13 +37,28 @@ void CTerraPlayerInput::Update()
 	//Draw debugging graphics
 	if(g_pGameCVars->pl_debug_input)
 	{
-		DEBUG_DRAW_ANG3(m_DeltaRotation);
-		DEBUG_DRAW_VEC3(m_DeltaMovement);
-
-		/*IPersistantDebug* debug = gEnv->pGameFramework->GetIPersistantDebug();
+		IPersistantDebug* debug = gEnv->pGameFramework->GetIPersistantDebug();
 		debug->Reset();
 		debug->Begin("TestAddPersistentText2D",false);
-		debug->Add2DText(, 1, ColorF(1.0f, 1.0f, 1.0f), 5);*/
+
+		string movementString = "DeltaMovement: " +
+								ToString(m_DeltaMovement.x) + ", " +
+								ToString(m_DeltaMovement.y) + ", " +
+								ToString(m_DeltaMovement.z);
+
+		string rotationString = "DeltaRotation: " +
+								ToString(m_DeltaRotation.x) + ", " +
+								ToString(m_DeltaRotation.y) + ", " +
+								ToString(m_DeltaRotation.z);
+
+		float	cursorX, cursorY;
+		gEnv->pHardwareMouse->GetHardwareMouseClientPosition(&cursorX, &cursorY);
+
+		string cursorPosString = "CursorPos: " + ToString(cursorX) + ", " + ToString(cursorY);
+
+		debug->Add2DText(cursorPosString.c_str(), 1, ColorF(1.0f, 1.0f, 1.0f), 1);
+		debug->Add2DText(movementString.c_str(), 1, ColorF(1.0f, 1.0f, 1.0f), 1);
+		debug->Add2DText(rotationString.c_str(), 1, ColorF(1.0f, 1.0f, 1.0f), 1);
 	}
 }
 
@@ -80,8 +95,6 @@ uint32 CTerraPlayerInput::GetActions() const
 
 void CTerraPlayerInput::OnAction(const ActionId& action, int activationMode, float value)
 {
-	CryLogAlways("%s | %d | %f", action, activationMode, value);
-
 	if(action == "moveforward")
 		OnActionMoveForward(activationMode, value);
 	else if(action == "moveback")
@@ -130,10 +143,8 @@ void CTerraPlayerInput::OnActionMoveRight(int activationMode, float value)
 
 void CTerraPlayerInput::OnActionMouseMoveX(int activationMode, float value)
 {
-	m_DeltaRotation.z += value;
 }
 
 void CTerraPlayerInput::OnActionMouseMoveY(int activationMode, float value)
 {
-	m_DeltaRotation.x += value;
 }

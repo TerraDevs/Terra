@@ -6,6 +6,9 @@
 #include "TerraPlayerInput.h"
 #include "TerraMovementController.h"
 #include "HUD/UIManager.h"
+#include "IHardwareMouse.h"
+#include "Cry_GeoIntersect.h"
+#include "Utility/StringUtils.h"
 #include <IViewSystem.h>
 
 CTerraPlayer::CTerraPlayer():
@@ -22,6 +25,8 @@ CTerraPlayer::~CTerraPlayer()
 		m_pDebugHistoryManager->Release();
 		delete m_pDebugHistoryManager;
 	}
+
+	gEnv->pEntitySystem->RemoveEntity(m_pAimCursor->GetId());
 }
 
 bool CTerraPlayer::Init(IGameObject * pGameObject)
@@ -54,6 +59,22 @@ void CTerraPlayer::PostInit( IGameObject * pGameObject )
 	{
 		GetGameObject()->SetUpdateSlotEnableCondition( this, 0, eUEC_VisibleOrInRange );
 	}
+
+	//Init aim cursor
+	SEntitySpawnParams cursorParams;
+	cursorParams.sName		= "playerAimCursor";
+	cursorParams.sLayerName	= "playerLayer";
+	cursorParams.nFlags		= ENTITY_FLAG_NO_SAVE | ENTITY_FLAG_SPAWNED;
+	cursorParams.pClass		= gEnv->pEntitySystem->GetClassRegistry()->GetDefaultClass();
+	m_pAimCursor			= gEnv->pEntitySystem->SpawnEntity(cursorParams);
+
+	if(m_pAimCursor != NULL)
+	{
+		IMaterial* pMat = gEnv->p3DEngine->GetMaterialManager()->LoadMaterial("material_default");
+		m_pAimCursor->SetMaterial(pMat);
+		m_pAimCursor->LoadGeometry(0, "objects/default/primitive_sphere.cgf");
+		m_pAimCursor->SetScale(Vec3(0.2f, 0.2f, 0.2f));
+	}
 }
 
 void CTerraPlayer::InitClient(int channelId )
@@ -78,18 +99,18 @@ void CTerraPlayer::PrePhysicsUpdate()
 		m_playerInput->PreUpdate();
 
 	//Move player//////////////////////////
-	SActorFrameMovementParams moveParams;
+	SActorFrameMovementParams	moveParams;
+	SCharacterMoveRequest		moveRequest;
 
 	if(m_pMovementController)
 		m_pMovementController->Update(frametime, moveParams); //Modifies moveParams to contain rotation, velocity, etc.
 
-	m_moveRequest.rotation	= Quat::CreateRotationXYZ(moveParams.deltaAngles);
-	m_moveRequest.velocity	= moveParams.desiredVelocity;
-	m_moveRequest.type		= ECharacterMoveType::eCMT_Normal;
+	Vec3 toAimCursor		= m_pAimCursor->GetWorldPos() - GetEntity()->GetWorldPos();
+	moveRequest.rotation	= Quat::CreateRotationXYZ(Ang3(0.0f, 0.0f, cry_atan2f(toAimCursor.y, toAimCursor.x)));
+	moveRequest.velocity	= moveParams.desiredVelocity;
+	moveRequest.type		= ECharacterMoveType::eCMT_Normal;
 
-	m_pAnimatedCharacter->AddMovement(m_moveRequest); //Applies movement
-
-	m_moveRequest.velocity.zero();
+	m_pAnimatedCharacter->AddMovement(moveRequest); //Applies movement
 
 	if(m_pMovementController)
 		m_pMovementController->PostUpdate(frametime);
@@ -110,7 +131,7 @@ void CTerraPlayer::UpdateDebug()
 void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 {
 	CActor::Update(ctx,updateSlot);
-	
+
 	if (m_playerInput.get())
 		m_playerInput->Update();
 	else
@@ -146,7 +167,7 @@ void CTerraPlayer::GetMemoryUsage(ICrySizer * s) const
 		m_playerInput->GetMemoryUsage(s);
 }
 
-void CTerraPlayer::UpdateView(SViewParams &viewParams)
+void CTerraPlayer::UpdateView(SViewParams& viewParams)
 {
 	viewParams.fov			= 0.5;
 	viewParams.position		= GetEntity()->GetWorldPos() + CAM_OFFSET;
@@ -156,4 +177,25 @@ void CTerraPlayer::UpdateView(SViewParams &viewParams)
 	static CUIManager* pManager = CUIManager::GetInstance();
 	if (pManager)
 		pManager->ProcessViewParams(viewParams);
+}
+
+void CTerraPlayer::PostUpdateView(SViewParams& viewParams)
+{
+	//Update aim cursor
+	float	cursorX, cursorY;
+	float	mouseX_3d, mouseY_3d, mouseZ_3d;
+
+	gEnv->pHardwareMouse->GetHardwareMouseClientPosition(&cursorX, &cursorY);
+	gEnv->pRenderer->UnProjectFromScreen(cursorX, gEnv->pRenderer->GetHeight() - cursorY, 0, &mouseX_3d, &mouseY_3d, &mouseZ_3d);
+
+	float	rayRange	= gEnv->p3DEngine->GetMaxViewDistance();
+	Vec3	camPos		= gEnv->pRenderer->GetCamera().GetPosition();
+	Vec3	rayDir		= (Vec3(mouseX_3d, mouseY_3d, mouseZ_3d) - camPos).GetNormalizedSafe();
+
+	Ray mouseRay(camPos, rayDir);
+	Plane groundPlane(Vec3(0.0f, 0.0f, 1.0f), -GetEntity()->GetPos().z);
+	Vec3 hitPos;
+	Intersect::Ray_Plane(mouseRay, groundPlane, hitPos);
+
+	m_pAimCursor->SetPos(hitPos);
 }

@@ -188,6 +188,9 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Profile Server Only|x64'">$(SolutionDir)..\..\Bin64_dedicated\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Server Only|x64'">$(SolutionDir)..\..\Bin64_dedicated\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>

@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>Terra</ProjectName>
+    <ProjectName>CryGame</ProjectName>
     <ProjectGuid>{2652EA4E-BB2C-4DDC-BFD9-89FFC50A4403}</ProjectGuid>
     <RootNamespace>CryGame</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -188,8 +188,11 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Profile Server Only|x64'">$(SolutionDir)..\..\Bin64_dedicated\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release Server Only|x64'">$(SolutionDir)..\..\Bin64_dedicated\</OutDir>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>$(SolutionDir)..\Game\GameDll\TerraFiles;$(STLport)\stlport;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)..\Game\GameDll\TerraFiles;$(STLport)\stlport;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -227,7 +230,7 @@
     <ClCompile>
       <AdditionalOptions>/Zm200 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>E:\Terra\Project\Code\Game\GameDll\TerraFiles;%(AdditionalIncludeDirectories);.\;..\..\CryEngine\CryAction;..\..\SDKs;..\..\SDKs\speex-1.0.5\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);.\;..\..\CryEngine\CryAction;..\..\SDKs;..\..\SDKs\speex-1.0.5\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>GAMEDLL_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ForceConformanceInForLoopScope>true</ForceConformanceInForLoopScope>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -550,9 +553,9 @@
     <ClCompile Include="PlayerMovementController.cpp" />
     <ClCompile Include="PlayerRotation.cpp" />
     <ClCompile Include="PlayerView.cpp" />
-    <ClCompile Include="TerraFiles\Actor Files\TerraMovementController.cpp" />
-    <ClCompile Include="TerraFiles\Actor Files\TerraPlayer.cpp" />
-    <ClCompile Include="TerraFiles\Actor Files\TerraPlayerInput.cpp" />
+    <ClCompile Include="TerraFiles\TerraMovementController.cpp" />
+    <ClCompile Include="TerraFiles\TerraPlayer.cpp" />
+    <ClCompile Include="TerraFiles\TerraPlayerInput.cpp" />
     <ClCompile Include="Utility\CryHash.cpp" />
     <ClCompile Include="WeaponAttachmentManager.cpp" />
     <ClCompile Include="CustomReactionFunctions.cpp" />
@@ -816,9 +819,9 @@
     <ClInclude Include="PlayerMovementController.h" />
     <ClInclude Include="PlayerRotation.h" />
     <ClInclude Include="PlayerView.h" />
-    <ClInclude Include="TerraFiles\Actor Files\TerraMovementController.h" />
-    <ClInclude Include="TerraFiles\Actor Files\TerraPlayer.h" />
-    <ClInclude Include="TerraFiles\Actor Files\TerraPlayerInput.h" />
+    <ClInclude Include="TerraFiles\TerraMovementController.h" />
+    <ClInclude Include="TerraFiles\TerraPlayer.h" />
+    <ClInclude Include="TerraFiles\TerraPlayerInput.h" />
     <ClInclude Include="Utility\CryHash.h" />
     <ClInclude Include="WeaponAttachmentManager.h" />
     <ClInclude Include="CustomReactionFunctions.h" />

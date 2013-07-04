@@ -18,7 +18,7 @@
 
 #include "StdAfx.h"
 #include "Game.h"
-#include "Actor Files/TerraPlayer.h"
+#include "Player.h"
 #include "Flyer.h"
 #include "Shark.h"
 //
@@ -79,6 +79,8 @@
 #include "Samples/AnimatedCharacterSample.h"
 #include "Samples/LivingEntitySample.h"
 #include "GameRulesManager.h"
+
+#include "TerraPlayer.h"
 
 #define HIDE_FROM_EDITOR(className)																																				\
   { IEntityClass *pItemClass = gEnv->pEntitySystem->GetClassRegistry()->FindClass(className);\

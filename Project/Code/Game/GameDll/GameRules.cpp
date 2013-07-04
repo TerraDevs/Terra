@@ -17,7 +17,6 @@
 #include "GameCVars.h"
 #include "Actor.h"
 #include "Player.h"
-#include "Actor Files/TerraPlayer.h"
 
 #include "IVehicleSystem.h"
 #include "IItemSystem.h"
@@ -812,8 +811,8 @@ void CGameRules::OnClientDisconnect(int channelId, EDisconnectionCause cause, co
 			pSeat->Reset();
 	}
 
-	//if(pActor->GetActorClass() == CPlayer::GetActorClassType())
-	//	static_cast<CPlayer*>(pActor)->RemoveAllExplosives(0.0f);
+	if(pActor->GetActorClass() == CPlayer::GetActorClassType())
+		static_cast<CPlayer*>(pActor)->RemoveAllExplosives(0.0f);
 
   SetTeam(0, pActor->GetEntityId());
 
@@ -1400,11 +1399,11 @@ void CGameRules::KillPlayer(IActor* pActor, const bool inDropItem, const bool in
 	params.ragdoll = inDoRagdoll;
 	params.penetration = inHitInfo.penetrationCount;
 
-	/*CHitDeathReactionsPtr pHitDeathReactions = static_cast<CPlayer*>(pActor)->GetHitDeathReactions();
+	CHitDeathReactionsPtr pHitDeathReactions = static_cast<CPlayer*>(pActor)->GetHitDeathReactions();
 	if (g_pGameCVars->g_hitDeathReactions_enable && pHitDeathReactions)
 	{
 		params.ragdoll = !pHitDeathReactions->OnKill(params) && params.ragdoll;
-	}*/
+	}
 
 	if (params.ragdoll)
 		pActor->GetGameObject()->SetAspectProfile(eEA_Physics, eAP_Ragdoll);
@@ -3616,11 +3615,11 @@ void CGameRules::CreateScriptHitInfo(SmartScriptTable &scriptHitInfo, const HitI
 		{
 			IActor *pActor = gEnv->pGame->GetIGameFramework()->GetIActorSystem()->GetActor(pShooter->GetId());
 
-			/*if (pActor && pActor->IsPlayer())
+			if (pActor && pActor->IsPlayer())
 			{
 				CPlayer *player = (CPlayer *)pActor;
 				assist=player->HasHitAssistance() ? 1.0f : 0.0f;
-			}*/
+			}
 		}
 		
 		hit.SetValue("assistance", assist);		
@@ -4344,19 +4343,6 @@ void CGameRules::ForceSynchedStorageSynch(int channel)
 
 
 void CGameRules::PlayerPosForRespawn(CPlayer* pPlayer, bool save)
-{
-	static 	Matrix34	respawnPlayerTM(IDENTITY);
-	if (save)
-	{
-		respawnPlayerTM = pPlayer->GetEntity()->GetWorldTM();
-	}
-	else
-	{
-		pPlayer->GetEntity()->SetWorldTM(respawnPlayerTM);
-	}
-}
-
-void CGameRules::PlayerPosForRespawn(CTerraPlayer* pPlayer, bool save)
 {
 	static 	Matrix34	respawnPlayerTM(IDENTITY);
 	if (save)

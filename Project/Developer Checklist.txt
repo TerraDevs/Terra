@@ -1,3 +1,0 @@
-- Use Visual Studio 2012
-- CryEngine version: 3.4.5.6666 FreeSDK
-- The repository only contains the 'Code' folder of the engine, the rest has to be added manually.

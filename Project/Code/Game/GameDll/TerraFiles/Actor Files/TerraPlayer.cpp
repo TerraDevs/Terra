@@ -11,20 +11,13 @@
 #include "Utility/StringUtils.h"
 #include <IViewSystem.h>
 
-CTerraPlayer::CTerraPlayer():
-	m_pDebugHistoryManager(NULL)
+CTerraPlayer::CTerraPlayer()
 {
 }
 
 CTerraPlayer::~CTerraPlayer()
 {
 	m_playerInput.reset();
-
-	if(m_pDebugHistoryManager != NULL)
-	{
-		m_pDebugHistoryManager->Release();
-		delete m_pDebugHistoryManager;
-	}
 
 	gEnv->pEntitySystem->RemoveEntity(m_pAimCursor->GetId());
 }
@@ -59,6 +52,8 @@ void CTerraPlayer::PostInit( IGameObject * pGameObject )
 	{
 		GetGameObject()->SetUpdateSlotEnableCondition( this, 0, eUEC_VisibleOrInRange );
 	}
+
+	m_pDebug = gEnv->pGameFramework->GetIPersistantDebug();
 
 	//Init aim cursor
 	SEntitySpawnParams cursorParams;
@@ -106,7 +101,9 @@ void CTerraPlayer::PrePhysicsUpdate()
 		m_pMovementController->Update(frametime, moveParams); //Modifies moveParams to contain rotation, velocity, etc.
 
 	Vec3 toAimCursor		= m_pAimCursor->GetWorldPos() - GetEntity()->GetWorldPos();
-	moveRequest.rotation	= Quat::CreateRotationXYZ(Ang3(0.0f, 0.0f, cry_atan2f(toAimCursor.y, toAimCursor.x)));
+	Ang3 playerRotation		= GetEntity()->GetWorldAngles();
+	float toAimRotation		= cry_atan2f(toAimCursor.x, toAimCursor.y);
+	//moveRequest.rotation	= Quat::CreateRotationZ(45);
 	moveRequest.velocity	= moveParams.desiredVelocity;
 	moveRequest.type		= ECharacterMoveType::eCMT_Normal;
 
@@ -124,8 +121,27 @@ void CTerraPlayer::UpdateDebug()
 	if(!g_pGameCVars->pl_debug_movement)
 		return;
 
-	if(m_pDebugHistoryManager == NULL)
-		m_pDebugHistoryManager = g_pGame->GetIGameFramework()->CreateDebugHistoryManager();
+	m_pDebug->Reset();
+	m_pDebug->Begin("TestAddPersistentText2D",false);
+
+	string positionString	= "Position: " +
+								ToString(GetEntity()->GetWorldPos().x) + ", " +
+								ToString(GetEntity()->GetWorldPos().y) + ", " +
+								ToString(GetEntity()->GetWorldPos().z);
+
+	string rotationString	= "Rotation: " +
+								ToString(GetEntity()->GetWorldAngles().x) + ", " +
+								ToString(GetEntity()->GetWorldAngles().y) + ", " +
+								ToString(GetEntity()->GetWorldAngles().z);
+
+	Vec3 toAimCursor		= m_pAimCursor->GetWorldPos() - GetEntity()->GetWorldPos();
+	float toAimCursorAng	= cry_atan2f(toAimCursor.y, toAimCursor.x);
+	string toCursorString	= "ToAimCursor: " + ToString(toAimCursorAng);
+
+	m_pDebug->AddDirection(GetEntity()->GetWorldPos(), 1.0f, toAimCursor, ColorF(1.0f, 0.0f, 0.0f), 0.5f);
+	m_pDebug->Add2DText(positionString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
+	m_pDebug->Add2DText(rotationString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
+	m_pDebug->Add2DText(toCursorString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
 }
 
 void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)

@@ -41,8 +41,7 @@ public:
 
 protected:
 	std::auto_ptr<IPlayerInput> m_playerInput;
-	IDebugHistoryManager*		m_pDebugHistoryManager;
-
+	IPersistantDebug*			m_pDebug;
 	IEntity*					m_pAimCursor;
 };
 

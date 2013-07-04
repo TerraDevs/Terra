@@ -20,6 +20,7 @@ public:
 
 	virtual void PreUpdate();
 	virtual void Update();
+	virtual void UpdateDebug();
 	virtual void PostUpdate();
 
 	virtual void SetState( const SSerializedPlayerInput& input );
@@ -44,9 +45,9 @@ public:
 	virtual void OnActionMouseMoveY(int activationMode, float value);
 
 protected:
-	Vec3			m_DeltaMovement;
-	Ang3			m_DeltaRotation;
-	CTerraPlayer*	m_pPlayer;
+	Vec3				m_DeltaMovement;
+	CTerraPlayer*		m_pPlayer;
+	IPersistantDebug*	m_pDebug;
 };
 
 #endif

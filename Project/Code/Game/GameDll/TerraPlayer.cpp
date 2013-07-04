@@ -103,7 +103,7 @@ void CTerraPlayer::PrePhysicsUpdate()
 	Vec3 toAimCursor		= m_pAimCursor->GetWorldPos() - GetEntity()->GetWorldPos();
 	Ang3 playerRotation		= GetEntity()->GetWorldAngles();
 	float toAimRotationZ	= cry_atan2f(toAimCursor.y, toAimCursor.x);
-	moveRequest.rotation	= Quat::CreateRotationZ(toAimRotationZ - playerRotation.z + gf_PI * 0.5f);
+	moveRequest.rotation	= Quat::CreateRotationZ(toAimRotationZ - playerRotation.z - gf_PI * 0.5f);
 	moveRequest.velocity	= moveParams.desiredVelocity;
 	moveRequest.type		= ECharacterMoveType::eCMT_Normal;
 

@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectName>CryGame</ProjectName>
+    <ProjectName>Terra</ProjectName>
     <ProjectGuid>{2652EA4E-BB2C-4DDC-BFD9-89FFC50A4403}</ProjectGuid>
     <RootNamespace>CryGame</RootNamespace>
     <Keyword>Win32Proj</Keyword>
@@ -553,9 +553,9 @@
     <ClCompile Include="PlayerMovementController.cpp" />
     <ClCompile Include="PlayerRotation.cpp" />
     <ClCompile Include="PlayerView.cpp" />
-    <ClCompile Include="TerraFiles\TerraMovementController.cpp" />
-    <ClCompile Include="TerraFiles\TerraPlayer.cpp" />
-    <ClCompile Include="TerraFiles\TerraPlayerInput.cpp" />
+    <ClCompile Include="TerraMovementController.cpp" />
+    <ClCompile Include="TerraPlayer.cpp" />
+    <ClCompile Include="TerraPlayerInput.cpp" />
     <ClCompile Include="Utility\CryHash.cpp" />
     <ClCompile Include="WeaponAttachmentManager.cpp" />
     <ClCompile Include="CustomReactionFunctions.cpp" />
@@ -819,9 +819,9 @@
     <ClInclude Include="PlayerMovementController.h" />
     <ClInclude Include="PlayerRotation.h" />
     <ClInclude Include="PlayerView.h" />
-    <ClInclude Include="TerraFiles\TerraMovementController.h" />
-    <ClInclude Include="TerraFiles\TerraPlayer.h" />
-    <ClInclude Include="TerraFiles\TerraPlayerInput.h" />
+    <ClInclude Include="TerraMovementController.h" />
+    <ClInclude Include="TerraPlayer.h" />
+    <ClInclude Include="TerraPlayerInput.h" />
     <ClInclude Include="Utility\CryHash.h" />
     <ClInclude Include="WeaponAttachmentManager.h" />
     <ClInclude Include="CustomReactionFunctions.h" />

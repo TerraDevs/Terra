@@ -840,13 +840,13 @@
     <ClCompile Include="Environment\Snow.cpp">
       <Filter>Game Files\Environment</Filter>
     </ClCompile>
-    <ClCompile Include="TerraFiles\TerraMovementController.cpp">
+    <ClCompile Include="TerraMovementController.cpp">
       <Filter>TerraFiles\Actor Files</Filter>
     </ClCompile>
-    <ClCompile Include="TerraFiles\TerraPlayer.cpp">
+    <ClCompile Include="TerraPlayer.cpp">
       <Filter>TerraFiles\Actor Files</Filter>
     </ClCompile>
-    <ClCompile Include="TerraFiles\TerraPlayerInput.cpp">
+    <ClCompile Include="TerraPlayerInput.cpp">
       <Filter>TerraFiles\Actor Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1541,13 +1541,13 @@
     <ClInclude Include="Environment\Snow.h">
       <Filter>Game Files\Environment</Filter>
     </ClInclude>
-    <ClInclude Include="TerraFiles\TerraMovementController.h">
+    <ClInclude Include="TerraMovementController.h">
       <Filter>TerraFiles\Actor Files</Filter>
     </ClInclude>
-    <ClInclude Include="TerraFiles\TerraPlayer.h">
+    <ClInclude Include="TerraPlayer.h">
       <Filter>TerraFiles\Actor Files</Filter>
     </ClInclude>
-    <ClInclude Include="TerraFiles\TerraPlayerInput.h">
+    <ClInclude Include="TerraPlayerInput.h">
       <Filter>TerraFiles\Actor Files</Filter>
     </ClInclude>
   </ItemGroup>

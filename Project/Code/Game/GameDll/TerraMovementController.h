@@ -10,15 +10,15 @@
 class CTerraMovementController : public IActorMovementController
 {
 public:
-	CTerraMovementController( CTerraPlayer * pPlayer );
+	CTerraMovementController(CTerraPlayer * pPlayer);
 	inline virtual ~CTerraMovementController() {}
 
 	virtual void Reset();
-	virtual bool Update( float frameTime, SActorFrameMovementParams& params );
+	virtual bool Update(float frameTime, SActorFrameMovementParams& params);
 	virtual bool GetStats(SStats& stats);
-	virtual void PostUpdate( float frameTime );
+	virtual void PostUpdate(float frameTime);
 	virtual void Release();
-	virtual void BindInputs( IAnimationGraphState * ) {}
+	virtual void BindInputs(IAnimationGraphState*);
 	virtual void Serialize(TSerialize &ser);
 
 	// Description:
@@ -27,9 +27,9 @@ public:
 	//    is updated to be a similar request that could be fulfilled
 	//    (calling code is then free to inspect this, and call RequestMovement
 	//    again to set a new movement)
-	virtual bool RequestMovement( CMovementRequest& request );
+	virtual bool RequestMovement(CMovementRequest& request);
 
-	virtual void GetMovementState( SMovementState& state )
+	virtual void GetMovementState(SMovementState& state)
 	{
 		state = m_currentMovementState;
 	}
@@ -39,7 +39,7 @@ public:
 	//		If the parameter 'defaultPose' is set to false, the current aim and look target info is used to
 	//		calculate the stance info, else a default pose facing along positive Y-axis is returned.
 	//		Returns false if the description cannot be queried.
-	virtual bool GetStanceState( const SStanceStateQuery& query, SStanceState& state );
+	virtual bool GetStanceState(const SStanceStateQuery& query, SStanceState& state);
 
 protected:
 	CTerraPlayer*		m_pPlayer;

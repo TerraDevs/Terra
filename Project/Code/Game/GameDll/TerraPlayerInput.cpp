@@ -26,6 +26,11 @@ void CTerraPlayerInput::PreUpdate()
 
 	//Make a movement request
 	request.AddDeltaMovement(m_DeltaMovement.normalized());
+
+	float movementSpeed = m_DeltaMovement.GetLengthFloat();
+	if(movementSpeed != 0.0f)
+		request.SetPseudoSpeed(movementSpeed);
+
 	m_pPlayer->GetMovementController()->RequestMovement(request);
 }
 

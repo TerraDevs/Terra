@@ -29,6 +29,34 @@ bool CTerraPlayer::Init(IGameObject * pGameObject)
 
 	Revive(true);
 
+	IAnimationGraphState* pAGState	= m_pAnimatedCharacter->GetAnimationGraphState();
+	m_AnimInput_Action				= pAGState->GetInputId("Action");
+	m_AnimInput_Item				= pAGState->GetInputId("Item");
+	m_AnimInput_UsingLookIK			= pAGState->GetInputId("UsingLookIK");
+	m_AnimInput_Aiming				= pAGState->GetInputId("Aiming");
+	m_AnimInput_VehicleName			= pAGState->GetInputId("Vehicle");
+	m_AnimInput_VehicleSeat			= pAGState->GetInputId("VehicleSeat");
+	m_AnimInput_DesiredTurnSpeed	= pAGState->GetInputId("DesiredTurnSpeed");
+
+	ICharacterInstance* pCharacter	= GetEntity()->GetCharacter(0);
+	if (pCharacter)
+		pCharacter->EnableStartAnimation(true);
+
+	if (m_pAnimatedCharacter)
+	{
+		if (pAGState != NULL)
+		{
+			pAGState->SetInput( m_AnimInput_Item, "nw" );
+			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_AnimInput_Signal, "none" );
+			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_AnimInput_VehicleName, "none" );
+			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_AnimInput_VehicleSeat, 0 );
+		}
+		
+		m_pAnimatedCharacter->SetParams(m_pAnimatedCharacter->GetParams().ModifyFlags(eACF_ImmediateStance, 0));
+	}
+
+	SetStance(STANCE_RELAXED);
+
 	if(IEntityRenderProxy* pProxy = (IEntityRenderProxy*)GetEntity()->GetProxy(ENTITY_PROXY_RENDER))
 	{
 		if(IRenderNode* pRenderNode = pProxy->GetRenderNode())
@@ -41,8 +69,6 @@ bool CTerraPlayer::Init(IGameObject * pGameObject)
 void CTerraPlayer::PostInit( IGameObject * pGameObject )
 {
 	CActor::PostInit(pGameObject);
-
-	ResetAnimGraph();
 
 	if(gEnv->bMultiplayer)
 	{
@@ -70,6 +96,15 @@ void CTerraPlayer::PostInit( IGameObject * pGameObject )
 		m_pAimCursor->LoadGeometry(0, "objects/default/primitive_sphere.cgf");
 		m_pAimCursor->SetScale(Vec3(0.2f, 0.2f, 0.2f));
 	}
+	
+	//Init animation
+	IAnimationGraphState* pAnimGraphState	= m_pAnimatedCharacter->GetAnimationGraphState();
+	m_AnimInput_Action						= pAnimGraphState->GetInputId("Action");
+	m_AnimInput_Stance						= pAnimGraphState->GetInputId("Stance");
+	m_AnimInput_Signal						= pAnimGraphState->GetInputId("Signal");
+	m_AnimInput_PseudoSpeed					= pAnimGraphState->GetInputId("PseudoSpeed");
+
+	ResetAnimGraph();
 }
 
 void CTerraPlayer::InitClient(int channelId )
@@ -114,6 +149,7 @@ void CTerraPlayer::PrePhysicsUpdate()
 	///////////////////////////////////////
 
 	UpdateDebug();
+	UpdateAnimation();
 }
 
 void CTerraPlayer::UpdateDebug()
@@ -142,6 +178,10 @@ void CTerraPlayer::UpdateDebug()
 	m_pDebug->Add2DText(positionString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
 	m_pDebug->Add2DText(rotationString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
 	m_pDebug->Add2DText(toCursorString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
+}
+
+void CTerraPlayer::UpdateAnimation()
+{
 }
 
 void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)

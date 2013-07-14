@@ -42,9 +42,10 @@ public:
 	virtual bool GetStanceState(const SStanceStateQuery& query, SStanceState& state);
 
 protected:
-	CTerraPlayer*		m_pPlayer;
-	SMovementState		m_currentMovementState;
-	CMovementRequest	m_moveRequest;
+	CTerraPlayer*				m_pPlayer;
+	SMovementState				m_currentMovementState;
+	CMovementRequest			m_moveRequest;
+	IAnimationGraph::InputID	m_inputPseudoSpeed;
 };
 
 #endif

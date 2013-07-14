@@ -15,6 +15,9 @@ struct IDebugHistoryManager;
 
 class CTerraPlayer : public CActor
 {
+	friend class CTerraPlayerInput;
+	friend class CTerraMovementController;
+
 public:
 	CTerraPlayer();
 	~CTerraPlayer();
@@ -25,6 +28,7 @@ public:
 	virtual void InitLocalPlayer();
 	virtual void PrePhysicsUpdate();
 	virtual void UpdateDebug();
+	virtual void UpdateAnimation();
 	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
 	virtual void UpdateView(SViewParams &viewParams);
 	virtual void PostUpdateView(SViewParams& viewParams);
@@ -43,6 +47,17 @@ protected:
 	std::auto_ptr<IPlayerInput> m_playerInput;
 	IPersistantDebug*			m_pDebug;
 	IEntity*					m_pAimCursor;
+
+	IAnimationGraph::InputID	m_AnimInput_Stance;
+	IAnimationGraph::InputID	m_AnimInput_Action;
+	IAnimationGraph::InputID	m_AnimInput_Signal;
+	IAnimationGraph::InputID	m_AnimInput_Item;
+	IAnimationGraph::InputID	m_AnimInput_UsingLookIK;
+	IAnimationGraph::InputID	m_AnimInput_Aiming;
+	IAnimationGraph::InputID	m_AnimInput_VehicleName;
+	IAnimationGraph::InputID	m_AnimInput_VehicleSeat;
+	IAnimationGraph::InputID	m_AnimInput_DesiredTurnSpeed;
+public: IAnimationGraph::InputID	m_AnimInput_PseudoSpeed;
 };
 
 #endif

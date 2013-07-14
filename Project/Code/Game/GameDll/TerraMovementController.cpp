@@ -22,6 +22,9 @@ bool CTerraMovementController::Update(float frameTime, SActorFrameMovementParams
 	if(m_moveRequest.HasDeltaMovement())
 		params.desiredVelocity += m_moveRequest.GetDeltaMovement();
 
+	if(m_moveRequest.HasPseudoSpeed())
+		m_pPlayer->GetAnimationGraphState()->SetInput(m_pPlayer->m_AnimInput_PseudoSpeed, m_moveRequest.GetPseudoSpeed());
+
 	return true;
 }
 
@@ -41,6 +44,10 @@ void CTerraMovementController::Release()
 {
 }
 
+void CTerraMovementController::BindInputs(IAnimationGraphState* pAGState)
+{
+}
+
 void CTerraMovementController::Serialize(TSerialize &ser)
 {
 }
@@ -52,6 +59,9 @@ bool CTerraMovementController::RequestMovement(CMovementRequest& request)
 
 	if(request.HasDeltaMovement())
 		m_moveRequest.AddDeltaMovement(request.GetDeltaMovement());
+
+	if(request.HasPseudoSpeed())
+		m_moveRequest.SetPseudoSpeed(request.GetPseudoSpeed());
 
 	return true;
 }

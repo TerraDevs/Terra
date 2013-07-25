@@ -7,6 +7,7 @@
 #include "GameCVars.h"
 #include "Utility/StringUtils.h"
 #include "IHardwareMouse.h"
+#include "Weapon.h"
 
 CTerraPlayerInput::CTerraPlayerInput(CTerraPlayer *pPlayer):
 	m_pPlayer(pPlayer),
@@ -61,12 +62,12 @@ void CTerraPlayerInput::PostUpdate()
 {
 }
 
-void CTerraPlayerInput::SetState( const SSerializedPlayerInput& input )
+void CTerraPlayerInput::SetState(const SSerializedPlayerInput& input)
 {
 	GameWarning("CTerraPlayerInput::SetState called: should never happen");
 }
 
-void CTerraPlayerInput::GetState( SSerializedPlayerInput& input )
+void CTerraPlayerInput::GetState(SSerializedPlayerInput& input)
 {
 }
 
@@ -91,20 +92,22 @@ uint32 CTerraPlayerInput::GetActions() const
 void CTerraPlayerInput::OnAction(const ActionId& action, int activationMode, float value)
 {
 	if(action == "moveforward")
-		OnActionMoveForward(activationMode, value);
+		OnActionMoveForward(action, activationMode, value);
 	else if(action == "moveback")
-		OnActionMoveBack(activationMode, value);
+		OnActionMoveBack(action, activationMode, value);
 	else if(action == "moveleft")
-		OnActionMoveLeft(activationMode, value);
+		OnActionMoveLeft(action, activationMode, value);
 	else if(action == "moveright")
-		OnActionMoveRight(activationMode, value);
+		OnActionMoveRight(action, activationMode, value);
 	else if(action == "mouse_movex")
-		OnActionMouseMoveX(activationMode, value);
+		OnActionMouseMoveX(action, activationMode, value);
 	else if(action == "mouse_movey")
-		OnActionMouseMoveY(activationMode, value);
+		OnActionMouseMoveY(action, activationMode, value);
+	else if(action == "attack1")
+		OnActionAttack1(action, activationMode, value);
 }
 
-void CTerraPlayerInput::OnActionMoveForward(int activationMode, float value)
+void CTerraPlayerInput::OnActionMoveForward(const ActionId& action, int activationMode, float value)
 {
 	if(activationMode == 2)
 		m_DeltaMovement.y	-= 1.0f;
@@ -112,7 +115,7 @@ void CTerraPlayerInput::OnActionMoveForward(int activationMode, float value)
 		m_DeltaMovement.y	+= 1.0f;
 }
 
-void CTerraPlayerInput::OnActionMoveBack(int activationMode, float value)
+void CTerraPlayerInput::OnActionMoveBack(const ActionId& action, int activationMode, float value)
 {
 	if(activationMode == 2)
 		m_DeltaMovement.y	+= 1.0f;
@@ -120,7 +123,7 @@ void CTerraPlayerInput::OnActionMoveBack(int activationMode, float value)
 		m_DeltaMovement.y	-= 1.0f;
 }
 
-void CTerraPlayerInput::OnActionMoveLeft(int activationMode, float value)
+void CTerraPlayerInput::OnActionMoveLeft(const ActionId& action, int activationMode, float value)
 {
 	if(activationMode == 2)
 		m_DeltaMovement.x	+= 1.0f;
@@ -128,7 +131,7 @@ void CTerraPlayerInput::OnActionMoveLeft(int activationMode, float value)
 		m_DeltaMovement.x	-= 1.0f;
 }
 
-void CTerraPlayerInput::OnActionMoveRight(int activationMode, float value)
+void CTerraPlayerInput::OnActionMoveRight(const ActionId& action, int activationMode, float value)
 {
 	if(activationMode == 2)
 		m_DeltaMovement.x	-= 1.0f;
@@ -136,10 +139,16 @@ void CTerraPlayerInput::OnActionMoveRight(int activationMode, float value)
 		m_DeltaMovement.x	+= 1.0f;
 }
 
-void CTerraPlayerInput::OnActionMouseMoveX(int activationMode, float value)
+void CTerraPlayerInput::OnActionMouseMoveX(const ActionId& action, int activationMode, float value)
 {
 }
 
-void CTerraPlayerInput::OnActionMouseMoveY(int activationMode, float value)
+void CTerraPlayerInput::OnActionMouseMoveY(const ActionId& action, int activationMode, float value)
 {
+}
+
+void CTerraPlayerInput::OnActionAttack1(const ActionId& action, int activationMode, float value)
+{
+	CWeapon* pWeapon = m_pPlayer->GetWeapon(m_pPlayer->GetCurrentItemId());
+	pWeapon->OnAction(m_pPlayer->GetEntityId(), action, activationMode, value);
 }

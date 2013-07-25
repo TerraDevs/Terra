@@ -9,6 +9,7 @@
 #include "IHardwareMouse.h"
 #include "Cry_GeoIntersect.h"
 #include "Utility/StringUtils.h"
+#include "Weapon.h"
 #include <IViewSystem.h>
 
 CTerraPlayer::CTerraPlayer()
@@ -74,6 +75,20 @@ void CTerraPlayer::InitLocalPlayer()
 	CActor::InitLocalPlayer();
 
 	GetGameObject()->SetUpdateSlotEnableCondition(this, 0, eUEC_WithoutAI);
+	SelectItem(GetCurrentItemId(), true);
+}
+
+void CTerraPlayer::Revive(bool fromInit)
+{
+	CActor::Revive(fromInit);
+
+	CItem *pCurrentItem = GetItem(GetInventory()->GetCurrentItem());
+	if (pCurrentItem)
+		pCurrentItem->Select(true);
+
+	IAnimationGraphState* pAGState = m_pAnimatedCharacter->GetAnimationGraphState();
+	pAGState->SetInput(m_inputItem, "rifle");
+	pAGState->SetInput(m_inputUsingLookIK, 1);
 }
 
 void CTerraPlayer::ResetAnimGraph()
@@ -87,15 +102,26 @@ void CTerraPlayer::ResetAnimGraph()
 		IAnimationGraphState* pAGState = m_pAnimatedCharacter->GetAnimationGraphState();
 		if (pAGState != NULL)
 		{
-			pAGState->SetInput( m_inputItem, "nw" );
-			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_inputSignal, "none" );
-			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_inputWaterLevel, 0 );
+			pAGState->SetInput(m_inputItem, "nw");
+			pAGState->SetInput(m_inputSignal, "none");
+			pAGState->SetInput(m_inputUsingLookIK, 0);
+			pAGState->SetInput(m_inputWaterLevel, 0);
+			pAGState->SetInput(m_inputAiming, 0.0f);
 		}
 		
 		m_pAnimatedCharacter->SetParams( m_pAnimatedCharacter->GetParams().ModifyFlags( eACF_ImmediateStance, 0 ) );
 	}
 
 	SetStance(STANCE_STAND);
+}
+
+void CTerraPlayer::BindInputs(IAnimationGraphState* pAGState)
+{
+	CActor::BindInputs(pAGState);
+
+	m_inputAiming		= pAGState->GetInputId("Aiming");
+	m_inputItem			= pAGState->GetInputId("Item");
+	m_inputUsingLookIK	= pAGState->GetInputId("UsingLookIK");
 }
 
 void CTerraPlayer::SetParams(SmartScriptTable &rTable,bool resetFirst)
@@ -132,6 +158,8 @@ void CTerraPlayer::PrePhysicsUpdate()
 	if(m_pMovementController)
 		m_pMovementController->PostUpdate(frametime);
 	///////////////////////////////////////
+
+	SetIK(SActorFrameMovementParams());
 
 	UpdateDebug();
 }
@@ -172,6 +200,22 @@ void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 		m_playerInput->Update();
 	else
 		m_playerInput.reset(new CTerraPlayerInput(this));
+
+	UpdateWeaponRaising();
+}
+
+void CTerraPlayer::UpdateWeaponRaising()
+{
+	uint8 pose			= (uint8)eWeaponRaisedPose_None;
+	CWeapon* pWeapon	= GetWeapon(GetCurrentItemId());
+
+	if (pWeapon != NULL)
+	{
+		if(pWeapon->IsWeaponRaised())
+			pose |= pWeapon->GetRaisePose();
+	}
+
+	m_pAnimatedCharacter->SetWeaponRaisedPose((EWeaponRaisedPose)pose);
 }
 
 void CTerraPlayer::ProcessEvent(SEntityEvent& event)
@@ -180,6 +224,50 @@ void CTerraPlayer::ProcessEvent(SEntityEvent& event)
 	{
 	case ENTITY_EVENT_PREPHYSICSUPDATE: PrePhysicsUpdate(); break;
 	}
+
+	CActor::ProcessEvent(event);
+}
+
+void CTerraPlayer::SetIK(const SActorFrameMovementParams& frameMovementParams)
+{
+	if (!m_pAnimatedCharacter)
+		return;
+
+	IAnimationGraphState* pAGraph = m_pAnimatedCharacter->GetAnimationGraphState();
+	if(!pAGraph)
+		return;
+
+	IEntity * pEntity = GetEntity();
+	ICharacterInstance * pCharacter = pEntity->GetCharacter(0);
+	if (!pCharacter)
+		return;
+
+	SMovementState curMovementState;
+	m_pMovementController->GetMovementState(curMovementState);
+
+	pAGraph->SetInput(m_inputUsingLookIK, 0);
+
+	// -----------------------------------
+	// AIMING 
+	// -----------------------------------
+	Vec3 aimTarget = !frameMovementParams.aimTarget.IsZero() ? frameMovementParams.aimTarget: curMovementState.eyePosition + curMovementState.aimDirection * 5.0f;
+	bool aimEnabled = m_pAnimatedCharacter->IsAimIkAllowed();
+
+	const int32 aimIKLayer = GetAimIKLayer(m_params);
+	pAGraph->SetInput(m_inputAiming, aimEnabled ? 1 : 0);
+
+	ISkeletonPose * pSkeletonPose = pCharacter->GetISkeletonPose();
+	pSkeletonPose->SetAimIK(aimEnabled, aimTarget);
+
+	const float AIMIK_FADEOUT_TIME = 0.25f;
+	pSkeletonPose->SetAimIKFadeOutTime(AIMIK_FADEOUT_TIME);
+
+	const float AIMIK_FADEIN_TIME = 0.25f;
+	pSkeletonPose->SetAimIKFadeInTime(AIMIK_FADEIN_TIME);
+
+	IAnimationPoseBlenderDir* pIPoseBlenderAim = pSkeletonPose->GetIPoseBlenderAim();
+	if (pIPoseBlenderAim)
+		pIPoseBlenderAim->SetLayer(aimIKLayer);
 }
 
 IActorMovementController* CTerraPlayer::CreateMovementController()
@@ -187,11 +275,11 @@ IActorMovementController* CTerraPlayer::CreateMovementController()
 	return new CTerraMovementController(this);
 }
 
-void CTerraPlayer::SerializeXML( XmlNodeRef& node, bool bLoading )
+void CTerraPlayer::SerializeXML(XmlNodeRef& node, bool bLoading)
 {
 }
 
-void CTerraPlayer::SetAuthority( bool auth )
+void CTerraPlayer::SetAuthority(bool auth)
 {
 }
 

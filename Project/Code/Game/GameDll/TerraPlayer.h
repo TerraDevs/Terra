@@ -2,7 +2,7 @@
 #define __TERRAPLAYER_H__
 
 #if _MSC_VER > 1000
-# pragma once
+#pragma once
 #endif
 
 #include "Actor.h"
@@ -22,38 +22,48 @@ public:
 	CTerraPlayer();
 	~CTerraPlayer();
 
-	virtual bool Init( IGameObject * pGameObject );
-	virtual void PostInit( IGameObject * pGameObject );
-	virtual void InitClient(int channelId );
-	virtual void InitLocalPlayer();
+	bool Init(IGameObject * pGameObject);
+	void PostInit(IGameObject * pGameObject);
+	void InitClient(int channelId);
+	void InitLocalPlayer();
+	void Revive(bool fromInit);
 
-	virtual void ResetAnimGraph();
-	virtual void SetParams(SmartScriptTable &rTable,bool resetFirst);
+	void ResetAnimGraph();
+	void BindInputs(IAnimationGraphState*);
+	void SetParams(SmartScriptTable &rTable,bool resetFirst);
 
-	virtual void PrePhysicsUpdate();
-	virtual void UpdateDebug();
-	virtual void Update(SEntityUpdateContext& ctx, int updateSlot);
-	virtual void UpdateView(SViewParams &viewParams);
-	virtual void PostUpdateView(SViewParams& viewParams);
+	void PrePhysicsUpdate();
+	void UpdateDebug();
+	void Update(SEntityUpdateContext& ctx, int updateSlot);
+	void UpdateWeaponRaising();
+	void UpdateView(SViewParams &viewParams);
+	void PostUpdateView(SViewParams& viewParams);
 
-	virtual void ProcessEvent(SEntityEvent& event);
+	void ProcessEvent(SEntityEvent& event);
+	void SetIK(const SActorFrameMovementParams& frameMovementParams);
 
 	IActorMovementController * CreateMovementController();
 	
-	void SerializeXML( XmlNodeRef& node, bool bLoading );
-	void SetAuthority( bool auth );
+	void SerializeXML(XmlNodeRef& node, bool bLoading);
+	void SetAuthority(bool auth);
 	void GetMemoryUsage(ICrySizer * s) const;
 
-	IPlayerInput*	GetPlayerInput() const {return m_playerInput.get();}
-	IEntity*		GetAimCursor() const {return m_pAimCursor;}
+	IPlayerInput*		GetPlayerInput() const		{return m_playerInput.get();}
+	IEntity*			GetAimCursor() const		{return m_pAimCursor;}
+	SActorStats*		GetActorStats() 			{return &m_stats;}
+	const SActorStats*	GetActorStats() const		{return &m_stats;}
+	SActorParams*		GetActorParams()			{return &m_params;}
 
 protected:
 	std::auto_ptr<IPlayerInput> m_playerInput;
 	IPersistantDebug*			m_pDebug;
 	IEntity*					m_pAimCursor;
 	SActorParams				m_params;
+	SActorStats					m_stats;
 
 	IAnimationGraph::InputID	m_inputItem;
+	IAnimationGraph::InputID	m_inputAiming;
+	IAnimationGraph::InputID	m_inputUsingLookIK;
 };
 
 #endif

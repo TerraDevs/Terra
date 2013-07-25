@@ -22,7 +22,10 @@ bool CTerraMovementController::Update(float frameTime, SActorFrameMovementParams
 	if(m_moveRequest.HasDeltaMovement())
 		params.desiredVelocity += m_moveRequest.GetDeltaMovement() * m_pPlayer->GetStanceInfo(m_pPlayer->GetStance())->normalSpeed;
 
-	m_pPlayer->GetAnimationGraphState()->SetInput(m_inputPseudoSpeed, params.desiredVelocity.GetLength());
+	if(m_moveRequest.HasPseudoSpeed())
+		m_pPlayer->GetAnimationGraphState()->SetInput(m_inputPseudoSpeed, m_moveRequest.GetPseudoSpeed());
+	else
+		m_pPlayer->GetAnimationGraphState()->SetInput(m_inputPseudoSpeed, params.desiredVelocity.GetLength());
 
 	return true;
 }

@@ -9,9 +9,25 @@
 #include "IHardwareMouse.h"
 #include "Cry_GeoIntersect.h"
 #include "Utility/StringUtils.h"
+#include "Weapon.h"
 #include <IViewSystem.h>
 
-CTerraPlayer::CTerraPlayer()
+#define ENABLE_NAN_CHECK
+
+#ifdef ENABLE_NAN_CHECK
+#define CHECKQNAN_FLT(x) \
+	assert(((*alias_cast<unsigned*>(&(x)))&0xff000000) != 0xff000000u && (*alias_cast<unsigned*>(&(x))!= 0x7fc00000))
+#else
+#define CHECKQNAN_FLT(x) (void*)0
+#endif
+
+#define FOOTSTEPS_DEEPWATER_DEPTH 1  // meters
+#define INTERVAL_BREATHING 5  // seconds
+
+#define CHECKQNAN_VEC(v) \
+	CHECKQNAN_FLT(v.x); CHECKQNAN_FLT(v.y); CHECKQNAN_FLT(v.z)
+
+CTerraPlayer::CTerraPlayer():m_vWeaponPos(0)
 {
 }
 
@@ -29,40 +45,6 @@ bool CTerraPlayer::Init(IGameObject * pGameObject)
 
 	Revive(true);
 
-	IAnimationGraphState* pAGState	= m_pAnimatedCharacter->GetAnimationGraphState();
-	m_AnimInput_Action				= pAGState->GetInputId("Action");
-	m_AnimInput_Item				= pAGState->GetInputId("Item");
-	m_AnimInput_UsingLookIK			= pAGState->GetInputId("UsingLookIK");
-	m_AnimInput_Aiming				= pAGState->GetInputId("Aiming");
-	m_AnimInput_VehicleName			= pAGState->GetInputId("Vehicle");
-	m_AnimInput_VehicleSeat			= pAGState->GetInputId("VehicleSeat");
-	m_AnimInput_DesiredTurnSpeed	= pAGState->GetInputId("DesiredTurnSpeed");
-
-	ICharacterInstance* pCharacter	= GetEntity()->GetCharacter(0);
-	if (pCharacter)
-		pCharacter->EnableStartAnimation(true);
-
-	if (m_pAnimatedCharacter)
-	{
-		if (pAGState != NULL)
-		{
-			pAGState->SetInput( m_AnimInput_Item, "nw" );
-			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_AnimInput_Signal, "none" );
-			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_AnimInput_VehicleName, "none" );
-			m_pAnimatedCharacter->GetAnimationGraphState()->SetInput( m_AnimInput_VehicleSeat, 0 );
-		}
-		
-		m_pAnimatedCharacter->SetParams(m_pAnimatedCharacter->GetParams().ModifyFlags(eACF_ImmediateStance, 0));
-	}
-
-	SetStance(STANCE_RELAXED);
-
-	if(IEntityRenderProxy* pProxy = (IEntityRenderProxy*)GetEntity()->GetProxy(ENTITY_PROXY_RENDER))
-	{
-		if(IRenderNode* pRenderNode = pProxy->GetRenderNode())
-			pRenderNode->SetRndFlags(ERF_REGISTER_BY_POSITION,true);
-	}
-
 	return true;
 }
 
@@ -70,14 +52,12 @@ void CTerraPlayer::PostInit( IGameObject * pGameObject )
 {
 	CActor::PostInit(pGameObject);
 
+	ResetAnimGraph();
+
 	if(gEnv->bMultiplayer)
-	{
 		GetGameObject()->SetUpdateSlotEnableCondition( this, 0, eUEC_WithoutAI );
-	}
 	else if (!gEnv->bServer)
-	{
 		GetGameObject()->SetUpdateSlotEnableCondition( this, 0, eUEC_VisibleOrInRange );
-	}
 
 	m_pDebug = gEnv->pGameFramework->GetIPersistantDebug();
 
@@ -96,15 +76,6 @@ void CTerraPlayer::PostInit( IGameObject * pGameObject )
 		m_pAimCursor->LoadGeometry(0, "objects/default/primitive_sphere.cgf");
 		m_pAimCursor->SetScale(Vec3(0.2f, 0.2f, 0.2f));
 	}
-	
-	//Init animation
-	IAnimationGraphState* pAnimGraphState	= m_pAnimatedCharacter->GetAnimationGraphState();
-	m_AnimInput_Action						= pAnimGraphState->GetInputId("Action");
-	m_AnimInput_Stance						= pAnimGraphState->GetInputId("Stance");
-	m_AnimInput_Signal						= pAnimGraphState->GetInputId("Signal");
-	m_AnimInput_PseudoSpeed					= pAnimGraphState->GetInputId("PseudoSpeed");
-
-	ResetAnimGraph();
 }
 
 void CTerraPlayer::InitClient(int channelId )
@@ -121,6 +92,51 @@ void CTerraPlayer::InitLocalPlayer()
 	GetGameObject()->SetUpdateSlotEnableCondition(this, 0, eUEC_WithoutAI);
 }
 
+void CTerraPlayer::Revive(bool fromInit)
+{
+	CActor::Revive(fromInit);
+
+	m_pAnimatedCharacter->GetAnimationGraphState()->SetInput(m_inputItem, "rifle");
+}
+
+void CTerraPlayer::ResetAnimGraph()
+{
+	ICharacterInstance* pCharacter	= GetEntity()->GetCharacter(0);
+	if (pCharacter)
+		pCharacter->EnableStartAnimation(true);
+
+	if (m_pAnimatedCharacter)
+	{
+		IAnimationGraphState* pAGState = m_pAnimatedCharacter->GetAnimationGraphState();
+		if (pAGState != NULL)
+		{
+			pAGState->SetInput(m_inputItem, "nw");
+			pAGState->SetInput(m_inputSignal, "none");
+			pAGState->SetInput(m_inputUsingLookIK, 0);
+			pAGState->SetInput(m_inputWaterLevel, 0);
+			pAGState->SetInput(m_inputAiming, 0.0f);
+		}
+		
+		m_pAnimatedCharacter->SetParams( m_pAnimatedCharacter->GetParams().ModifyFlags( eACF_ImmediateStance, 0 ) );
+	}
+
+	SetStance(STANCE_STAND);
+}
+
+void CTerraPlayer::BindInputs(IAnimationGraphState* pAGState)
+{
+	CActor::BindInputs(pAGState);
+
+	m_inputAiming		= pAGState->GetInputId("Aiming");
+	m_inputItem			= pAGState->GetInputId("Item");
+	m_inputUsingLookIK	= pAGState->GetInputId("UsingLookIK");
+}
+
+void CTerraPlayer::SetParams(SmartScriptTable &rTable,bool resetFirst)
+{
+	CActor::SetParams(rTable, resetFirst);
+}
+
 void CTerraPlayer::PrePhysicsUpdate()
 {
 	float frametime = gEnv->pTimer->GetFrameTime();
@@ -132,15 +148,19 @@ void CTerraPlayer::PrePhysicsUpdate()
 	SActorFrameMovementParams	moveParams;
 	SCharacterMoveRequest		moveRequest;
 
+	moveRequest.type = ECharacterMoveType::eCMT_Normal;
+
 	if(m_pMovementController)
 		m_pMovementController->Update(frametime, moveParams); //Modifies moveParams to contain rotation, velocity, etc.
 
+	//Rotation
 	Vec3 toAimCursor		= m_pAimCursor->GetWorldPos() - GetEntity()->GetWorldPos();
 	Ang3 playerRotation		= GetEntity()->GetWorldAngles();
 	float toAimRotationZ	= cry_atan2f(toAimCursor.y, toAimCursor.x);
 	moveRequest.rotation	= Quat::CreateRotationZ(toAimRotationZ - playerRotation.z - gf_PI * 0.5f);
+
+	//Translation
 	moveRequest.velocity	= moveParams.desiredVelocity;
-	moveRequest.type		= ECharacterMoveType::eCMT_Normal;
 
 	m_pAnimatedCharacter->AddMovement(moveRequest); //Applies movement
 
@@ -148,8 +168,8 @@ void CTerraPlayer::PrePhysicsUpdate()
 		m_pMovementController->PostUpdate(frametime);
 	///////////////////////////////////////
 
+	UpdateAimIK();
 	UpdateDebug();
-	UpdateAnimation();
 }
 
 void CTerraPlayer::UpdateDebug()
@@ -180,10 +200,6 @@ void CTerraPlayer::UpdateDebug()
 	m_pDebug->Add2DText(toCursorString.c_str(), 1.0f, ColorF(1.0f, 1.0f, 1.0f), 1.0f);
 }
 
-void CTerraPlayer::UpdateAnimation()
-{
-}
-
 void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 {
 	CActor::Update(ctx,updateSlot);
@@ -192,6 +208,8 @@ void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 		m_playerInput->Update();
 	else
 		m_playerInput.reset(new CTerraPlayerInput(this));
+
+	m_vWeaponPos = GetEntity()->GetWorldPos() + WEAPON_OFFSET;
 }
 
 void CTerraPlayer::ProcessEvent(SEntityEvent& event)
@@ -200,6 +218,25 @@ void CTerraPlayer::ProcessEvent(SEntityEvent& event)
 	{
 	case ENTITY_EVENT_PREPHYSICSUPDATE: PrePhysicsUpdate(); break;
 	}
+
+	CActor::ProcessEvent(event);
+}
+
+void CTerraPlayer::UpdateAimIK()
+{
+	if(!m_pAnimatedCharacter)
+		return;
+
+	ISkeletonPose* pSkeletonPose = GetEntity()->GetCharacter(0)->GetISkeletonPose();
+	if(!pSkeletonPose)
+		return;
+
+	IAnimationPoseBlenderDir* pIPoseBlenderAim = pSkeletonPose->GetIPoseBlenderAim();
+	if(!pIPoseBlenderAim)
+		return;
+
+	pSkeletonPose->SetAimIK(m_pAnimatedCharacter->IsAimIkAllowed(), m_pAimCursor->GetWorldPos());
+	pIPoseBlenderAim->SetLayer(GetAimIKLayer(m_params));
 }
 
 IActorMovementController* CTerraPlayer::CreateMovementController()
@@ -207,11 +244,11 @@ IActorMovementController* CTerraPlayer::CreateMovementController()
 	return new CTerraMovementController(this);
 }
 
-void CTerraPlayer::SerializeXML( XmlNodeRef& node, bool bLoading )
+void CTerraPlayer::SerializeXML(XmlNodeRef& node, bool bLoading)
 {
 }
 
-void CTerraPlayer::SetAuthority( bool auth )
+void CTerraPlayer::SetAuthority(bool auth)
 {
 }
 
@@ -252,6 +289,7 @@ void CTerraPlayer::PostUpdateView(SViewParams& viewParams)
 	Plane groundPlane(Vec3(0.0f, 0.0f, 1.0f), -GetEntity()->GetPos().z);
 	Vec3 hitPos;
 	Intersect::Ray_Plane(mouseRay, groundPlane, hitPos);
+	hitPos.z = m_vWeaponPos.z;
 
 	m_pAimCursor->SetPos(hitPos);
 }

@@ -29,10 +29,12 @@ public:
 	//    again to set a new movement)
 	virtual bool RequestMovement(CMovementRequest& request);
 
-	virtual void GetMovementState(SMovementState& state)
+	ILINE virtual void GetMovementState(SMovementState& state)
 	{
 		state = m_currentMovementState;
 	}
+
+	virtual void UpdateMovementState(SMovementState& state);
 
 	// Description:
 	//    Returns the description of the stance as if the specified stance would be set right now.
@@ -42,9 +44,10 @@ public:
 	virtual bool GetStanceState(const SStanceStateQuery& query, SStanceState& state);
 
 protected:
-	CTerraPlayer*		m_pPlayer;
-	SMovementState		m_currentMovementState;
-	CMovementRequest	m_moveRequest;
+	CTerraPlayer*				m_pPlayer;
+	SMovementState				m_currentMovementState;
+	CMovementRequest			m_moveRequest;
+	IAnimationGraph::InputID	m_inputPseudoSpeed;
 };
 
 #endif

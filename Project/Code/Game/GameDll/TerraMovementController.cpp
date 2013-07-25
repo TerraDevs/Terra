@@ -20,10 +20,12 @@ bool CTerraMovementController::Update(float frameTime, SActorFrameMovementParams
 		params.deltaAngles += m_moveRequest.GetDeltaRotation();
 
 	if(m_moveRequest.HasDeltaMovement())
-		params.desiredVelocity += m_moveRequest.GetDeltaMovement();
+		params.desiredVelocity += m_moveRequest.GetDeltaMovement() * m_pPlayer->GetStanceInfo(m_pPlayer->GetStance())->normalSpeed;
 
 	if(m_moveRequest.HasPseudoSpeed())
-		m_pPlayer->GetAnimationGraphState()->SetInput(m_pPlayer->m_AnimInput_PseudoSpeed, m_moveRequest.GetPseudoSpeed());
+		m_pPlayer->GetAnimationGraphState()->SetInput(m_inputPseudoSpeed, m_moveRequest.GetPseudoSpeed());
+	else
+		m_pPlayer->GetAnimationGraphState()->SetInput(m_inputPseudoSpeed, params.desiredVelocity.GetLength());
 
 	return true;
 }
@@ -38,6 +40,8 @@ bool CTerraMovementController::GetStats(SStats& stats)
 void CTerraMovementController::PostUpdate(float frameTime)
 {
 	m_moveRequest.RemoveDeltaMovement();
+
+	UpdateMovementState(m_currentMovementState);
 }
 
 void CTerraMovementController::Release()
@@ -46,6 +50,7 @@ void CTerraMovementController::Release()
 
 void CTerraMovementController::BindInputs(IAnimationGraphState* pAGState)
 {
+	m_inputPseudoSpeed = pAGState->GetInputId("PseudoSpeed");
 }
 
 void CTerraMovementController::Serialize(TSerialize &ser)
@@ -64,6 +69,20 @@ bool CTerraMovementController::RequestMovement(CMovementRequest& request)
 		m_moveRequest.SetPseudoSpeed(request.GetPseudoSpeed());
 
 	return true;
+}
+
+void CTerraMovementController::UpdateMovementState(SMovementState& state)
+{
+	Vec3 vPlayerPos					= m_pPlayer->GetEntity()->GetWorldPos();
+	state.fireTarget				= m_pPlayer->m_pAimCursor->GetWorldPos();
+	state.eyePosition				= vPlayerPos + WEAPON_OFFSET;
+	state.eyeDirection				= (state.fireTarget - state.eyePosition).normalized();
+	state.animationEyeDirection		= state.eyeDirection;
+	state.animationBodyDirection	= state.eyeDirection;
+	state.aimDirection				= state.eyeDirection;
+	state.entityDirection			= state.eyeDirection;
+	state.fireDirection				= state.eyeDirection;
+	state.weaponPosition			= state.eyePosition;
 }
 
 bool CTerraMovementController::GetStanceState(const SStanceStateQuery& query, SStanceState& state)

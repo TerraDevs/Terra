@@ -64,6 +64,8 @@ protected:
 	IAnimationGraph::InputID	m_inputItem;
 	IAnimationGraph::InputID	m_inputAiming;
 	IAnimationGraph::InputID	m_inputUsingLookIK;
+
+	Vec3						m_vWeaponPos;
 };
 
 #endif

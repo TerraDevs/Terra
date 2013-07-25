@@ -26,8 +26,11 @@ void CTerraPlayerInput::PreUpdate()
 	CMovementRequest request;
 
 	//Make a movement request
-	request.AddDeltaMovement(m_DeltaMovement.normalized());
-	m_pPlayer->GetMovementController()->RequestMovement(request);
+	if(!m_DeltaMovement.IsZero())
+	{
+		request.AddDeltaMovement(m_DeltaMovement.normalized());
+		m_pPlayer->GetMovementController()->RequestMovement(request);
+	}
 }
 
 void CTerraPlayerInput::Update()
@@ -60,6 +63,7 @@ void CTerraPlayerInput::UpdateDebug()
 
 void CTerraPlayerInput::PostUpdate()
 {
+	m_DeltaMovement.zero();
 }
 
 void CTerraPlayerInput::SetState(const SSerializedPlayerInput& input)

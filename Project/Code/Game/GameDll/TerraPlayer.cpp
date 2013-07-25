@@ -12,7 +12,22 @@
 #include "Weapon.h"
 #include <IViewSystem.h>
 
-CTerraPlayer::CTerraPlayer()
+#define ENABLE_NAN_CHECK
+
+#ifdef ENABLE_NAN_CHECK
+#define CHECKQNAN_FLT(x) \
+	assert(((*alias_cast<unsigned*>(&(x)))&0xff000000) != 0xff000000u && (*alias_cast<unsigned*>(&(x))!= 0x7fc00000))
+#else
+#define CHECKQNAN_FLT(x) (void*)0
+#endif
+
+#define FOOTSTEPS_DEEPWATER_DEPTH 1  // meters
+#define INTERVAL_BREATHING 5  // seconds
+
+#define CHECKQNAN_VEC(v) \
+	CHECKQNAN_FLT(v.x); CHECKQNAN_FLT(v.y); CHECKQNAN_FLT(v.z)
+
+CTerraPlayer::CTerraPlayer():m_vWeaponPos(0)
 {
 }
 
@@ -133,15 +148,19 @@ void CTerraPlayer::PrePhysicsUpdate()
 	SActorFrameMovementParams	moveParams;
 	SCharacterMoveRequest		moveRequest;
 
+	moveRequest.type = ECharacterMoveType::eCMT_Normal;
+
 	if(m_pMovementController)
 		m_pMovementController->Update(frametime, moveParams); //Modifies moveParams to contain rotation, velocity, etc.
 
+	//Rotation
 	Vec3 toAimCursor		= m_pAimCursor->GetWorldPos() - GetEntity()->GetWorldPos();
 	Ang3 playerRotation		= GetEntity()->GetWorldAngles();
 	float toAimRotationZ	= cry_atan2f(toAimCursor.y, toAimCursor.x);
 	moveRequest.rotation	= Quat::CreateRotationZ(toAimRotationZ - playerRotation.z - gf_PI * 0.5f);
+
+	//Translation
 	moveRequest.velocity	= moveParams.desiredVelocity;
-	moveRequest.type		= ECharacterMoveType::eCMT_Normal;
 
 	m_pAnimatedCharacter->AddMovement(moveRequest); //Applies movement
 
@@ -189,6 +208,8 @@ void CTerraPlayer::Update(SEntityUpdateContext& ctx, int updateSlot)
 		m_playerInput->Update();
 	else
 		m_playerInput.reset(new CTerraPlayerInput(this));
+
+	m_vWeaponPos = GetEntity()->GetWorldPos() + WEAPON_OFFSET;
 }
 
 void CTerraPlayer::ProcessEvent(SEntityEvent& event)
@@ -268,6 +289,7 @@ void CTerraPlayer::PostUpdateView(SViewParams& viewParams)
 	Plane groundPlane(Vec3(0.0f, 0.0f, 1.0f), -GetEntity()->GetPos().z);
 	Vec3 hitPos;
 	Intersect::Ray_Plane(mouseRay, groundPlane, hitPos);
+	hitPos.z = m_vWeaponPos.z;
 
 	m_pAimCursor->SetPos(hitPos);
 }

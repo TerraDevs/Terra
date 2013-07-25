@@ -73,14 +73,16 @@ bool CTerraMovementController::RequestMovement(CMovementRequest& request)
 
 void CTerraMovementController::UpdateMovementState(SMovementState& state)
 {
-	Vec3 vPlayerPos			= m_pPlayer->GetEntity()->GetWorldPos();
-	state.fireTarget		= m_pPlayer->m_pAimCursor->GetWorldPos();
-	state.eyePosition		= vPlayerPos + WEAPON_OFFSET;
-	state.eyeDirection		= (state.fireTarget - state.eyePosition).normalized();
-	state.aimDirection		= state.eyeDirection;
-	state.entityDirection	= state.eyeDirection;
-	state.fireDirection		= state.eyeDirection;
-	state.weaponPosition	= state.eyePosition;
+	Vec3 vPlayerPos					= m_pPlayer->GetEntity()->GetWorldPos();
+	state.fireTarget				= m_pPlayer->m_pAimCursor->GetWorldPos();
+	state.eyePosition				= vPlayerPos + WEAPON_OFFSET;
+	state.eyeDirection				= (state.fireTarget - state.eyePosition).normalized();
+	state.animationEyeDirection		= state.eyeDirection;
+	state.animationBodyDirection	= state.eyeDirection;
+	state.aimDirection				= state.eyeDirection;
+	state.entityDirection			= state.eyeDirection;
+	state.fireDirection				= state.eyeDirection;
+	state.weaponPosition			= state.eyePosition;
 }
 
 bool CTerraMovementController::GetStanceState(const SStanceStateQuery& query, SStanceState& state)

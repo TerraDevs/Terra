@@ -9,6 +9,7 @@
 
 #define CAM_OFFSET		Vec3(0, -10, 10)
 #define CAM_ROTATION	Ang3(DEG2RAD(-45), 0, 0)
+#define WEAPON_OFFSET	Vec3(0, 0, 1);
 
 struct IPlayerInput;
 struct IDebugHistoryManager;
@@ -35,12 +36,11 @@ public:
 	void PrePhysicsUpdate();
 	void UpdateDebug();
 	void Update(SEntityUpdateContext& ctx, int updateSlot);
-	void UpdateWeaponRaising();
+	void UpdateAimIK();
 	void UpdateView(SViewParams &viewParams);
 	void PostUpdateView(SViewParams& viewParams);
 
 	void ProcessEvent(SEntityEvent& event);
-	void SetIK(const SActorFrameMovementParams& frameMovementParams);
 
 	IActorMovementController * CreateMovementController();
 	
